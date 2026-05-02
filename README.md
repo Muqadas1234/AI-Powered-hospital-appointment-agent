@@ -1,148 +1,292 @@
-# AI Voice Appointment Assistant - MVP + Phase 2
+# AI-Powered Hospital Appointment Agent
 
-This is the first MVP implementation for your appointment assistant.
-It exposes agent-friendly APIs that Vapi/OpenAI can call as tools.
+Voice-first appointment system for hospitals and clinics: patients book, reschedule, or cancel by talking to an AI assistant. The backend syncs with **Google Calendar**, sends **SMS** and **WhatsApp** reminders via **Twilio**, and exposes an **admin dashboard** (React) for providers, slots, appointments, fees, and notification logs.
 
-## Implemented Features
+**Repository:** [github.com/Muqadas1234/AI-Powered-hospital-appointment-agent](https://github.com/Muqadas1234/AI-Powered-hospital-appointment-agent)
 
-- FAQ tool (`get_faq_answer`)
-- Provider lookup (`get_providers`)
-- Slot lookup (`get_available_slots`)
-- Appointment conflict check (`check_calendar`)
-- Appointment booking (`book_appointment`)
-- Appointment cancellation (`cancel_appointment`)
-- Appointment rescheduling (`reschedule_appointment`)
-- Google Calendar sync service with safe fallback
-- JWT-based admin auth (`/api/v1/auth/login`)
-- Admin appointment APIs (`/api/v1/admin/appointments`)
-- Notification pipeline (email + SMS with delivery logs)
-- Vapi webhook receiver (`/api/v1/vapi/webhook`)
-- React voice caller client scaffold (`frontend`)
-- Idempotent booking/rescheduling support with `idempotency_key`
-- Optional tool API key validation (`TOOL_API_KEY`)
+---
 
-## Tech
+## Table of contents
 
-- FastAPI
-- SQLAlchemy
-- PostgreSQL (default via `.env`) or SQLite fallback
-- Google Calendar API
-- React + Vite
+| Section | Description |
+|--------|-------------|
+| [Overview](#overview) | What this project does |
+| [Features](#features) | Capabilities at a glance |
+| [Tech stack](#tech-stack) | Languages, frameworks, and services |
+| [Architecture](#architecture) | High-level flow |
+| [Prerequisites](#prerequisites) | What you need installed |
+| [Quick start](#quick-start) | Run backend and frontend locally |
+| [Configuration](#configuration) | Environment variables and secrets |
+| [Database and migrations](#database-and-migrations) | PostgreSQL / Alembic |
+| [Vapi (voice AI)](#vapi-voice-ai) | Assistant, tools, sync script |
+| [Twilio (SMS and WhatsApp)](#twilio-sms-and-whatsapp) | Reminders and inbound replies |
+| [Google Calendar](#google-calendar) | Service account setup |
+| [API reference](#api-reference) | Main HTTP endpoints |
+| [Project structure](#project-structure) | Repository layout |
+| [Security notes](#security-notes) | What never to commit |
 
-## Quick Start
+---
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
-   - `pip install -r requirements.txt`
-3. Copy env file:
-   - `copy .env.example .env` (Windows)
-4. Seed sample data:
-   - `python -m scripts.seed`
-5. Run server:
-   - `uvicorn app.main:app --reload`
-6. Open docs:
-   - `http://127.0.0.1:8000/docs`
+## Overview
 
-## Alembic Migrations
+The **AI Hospital Appointment Agent** connects three layers:
 
-Use Alembic for schema migration management:
+1. **Voice (Vapi)** — The patient speaks; the assistant uses tool calls to read availability and complete bookings.
+2. **API (FastAPI)** — Validates requests, persists data, drives notifications, and integrates with Google Calendar.
+3. **Admin UI (React + Vite)** — Staff manage providers (including **consultation fee in PKR**), time slots, FAQs, appointments, and notification history.
 
-1. Run migrations:
-   - `alembic upgrade head`
-2. Check current revision:
-   - `alembic current`
-3. Create new migration:
-   - `alembic revision -m "your_change_name"`
+Scheduled jobs (**APScheduler**) send reminders before appointments; patients can confirm or cancel via **SMS/WhatsApp** replies where configured.
 
-## Google Calendar Setup
+---
 
-1. Create a Google Cloud project and enable Calendar API.
-2. Create a service account and download JSON key file.
-3. Place the key file in project root (example: `google-service-account.json`).
-4. Update `.env`:
-   - `GOOGLE_SERVICE_ACCOUNT_FILE=google-service-account.json`
-   - `GOOGLE_CALENDAR_ID=primary` (or specific calendar id)
+## Features
 
-If this is not configured, booking still works and returns a safe "sync skipped" message.
+| Area | Details |
+|------|---------|
+| Voice booking | Book appointments through conversational AI with confirmation flow |
+| Reschedule / cancel | Update or cancel existing appointments; slot release and notifications |
+| Provider fees | `fee_pkr` per provider; assistant can state fees naturally to patients |
+| Calendar sync | Create/update/delete Google Calendar events when slots change |
+| Reminders | SMS and optional WhatsApp reminders (lead time configurable in minutes) |
+| Admin auth | JWT login for protected admin routes |
+| Idempotency | Optional `idempotency_key` on booking to avoid duplicate appointments |
+| Tool security | Optional `TOOL_API_KEY` for agent-facing tool endpoints |
 
-## Tool Endpoints for Vapi
+---
 
-- `POST /api/v1/tools/get_faq_answer`
-- `GET /api/v1/tools/get_providers?service=dentist`
-- `GET /api/v1/tools/get_available_slots?provider_id=1`
-- `POST /api/v1/tools/check_calendar`
-- `POST /api/v1/tools/book_appointment`
-- `POST /api/v1/tools/cancel_appointment`
-- `POST /api/v1/tools/reschedule_appointment`
-- `POST /api/v1/vapi/webhook`
-- `POST /api/v1/auth/login`
-- `GET /api/v1/admin/appointments`
-- `GET /api/v1/admin/appointments/{appointment_id}`
-- `GET /api/v1/admin/notifications`
-- `GET /api/v1/admin/providers`
-- `POST /api/v1/admin/providers`
-- `GET /api/v1/admin/slots`
-- `POST /api/v1/admin/slots`
-- `GET /api/v1/admin/faqs`
-- `POST /api/v1/admin/faqs`
+## Tech stack
 
-Vapi configs are included in:
+| Layer | Technology |
+|-------|------------|
+| API | Python 3, **FastAPI**, Pydantic |
+| Database | **PostgreSQL** (recommended), SQLAlchemy, **Alembic** |
+| Voice | **Vapi** (`@vapi-ai/web` in frontend; tools + prompt in `vapi/`) |
+| Calendar | **Google Calendar API** (service account JSON) |
+| Messaging | **Twilio** (REST via `requests` — SMS + WhatsApp) |
+| Scheduling | **APScheduler** |
+| Admin UI | **React 18**, **Vite 5** |
+| Auth | JWT (python-jose), passlib/bcrypt |
 
-- `vapi/tools.json`
-- `vapi/assistant_prompt.txt`
+---
 
-## Sync Vapi via API
+## Architecture
 
-If you do not want to manually update the Vapi dashboard, you can sync the
-assistant prompt and tools using the script below.
+```text
+Patient (voice) ──► Vapi ──► Tool HTTPS ──► FastAPI ──► PostgreSQL
+                              │                │
+                              │                ├──► Google Calendar
+                              │                └──► Twilio (SMS / WhatsApp)
+Staff (browser) ──► React admin ──► FastAPI (JWT)
+```
 
-1. Add these values to `.env`:
-   - `VAPI_PRIVATE_API_KEY`
-   - `VAPI_ASSISTANT_ID`
-   - `VAPI_NGROK_URL`
-2. Run:
-   - `python -m scripts.sync_vapi`
+---
 
-What it does:
+## Prerequisites
 
-- loads `vapi/assistant_prompt.txt`
-- loads `vapi/tools.json`
-- rewrites tool URLs to your current `VAPI_NGROK_URL`
-- injects `TOOL_API_KEY` into tool headers if present
-- updates the assistant through the Vapi REST API
+- **Python** 3.10+ (recommended)
+- **Node.js** 18+ (for the frontend)
+- **PostgreSQL** (or adapt `DATABASE_URL` if you use another supported backend)
+- **Google Cloud** project with Calendar API enabled (optional but recommended for live calendar)
+- **Vapi** account for voice (optional for API-only testing)
+- **Twilio** account for SMS/WhatsApp (optional)
 
-## Frontend Voice Caller (Phase 2)
+---
 
-1. Go to `frontend` folder.
-2. Install packages:
-   - `npm install`
-3. Configure env:
-   - copy `frontend/.env.example` to `frontend/.env`
-   - set `VITE_VAPI_PUBLIC_KEY`
-   - set `VITE_VAPI_ASSISTANT_ID`
-   - set `VITE_BACKEND_URL` (default `http://127.0.0.1:8000`)
-4. Start UI:
-   - `npm run dev`
-5. Open:
-   - `http://127.0.0.1:5173`
+## Quick start
 
-## Example Booking Request
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Muqadas1234/AI-Powered-hospital-appointment-agent.git
+cd AI-Powered-hospital-appointment-agent
+```
+
+### 2. Backend
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+copy .env.example .env   # Windows — edit .env with your values
+# cp .env.example .env   # macOS/Linux
+alembic upgrade head
+python -m scripts.seed    # optional sample data
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Open interactive docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+### 3. Frontend (admin + voice UI)
+
+```bash
+cd frontend
+npm install
+copy .env.example .env   # set VITE_VAPI_PUBLIC_KEY and VITE_VAPI_ASSISTANT_ID
+npm run dev
+```
+
+Open: [http://127.0.0.1:5173](http://127.0.0.1:5173)
+
+---
+
+## Configuration
+
+| File | Purpose |
+|------|---------|
+| `.env` | Backend secrets and URLs — **create from `.env.example`**, never commit |
+| `frontend/.env` | Vapi public key and assistant ID for the browser |
+| `google-service-account.json` | Google service account key — **never commit** (path set in `.env`) |
+
+Copy examples:
+
+```bash
+copy .env.example .env
+copy frontend\.env.example frontend\.env
+```
+
+Important variables (see `.env.example` for the full list):
+
+| Variable | Role |
+|----------|------|
+| `DATABASE_URL` | SQLAlchemy URL (PostgreSQL) |
+| `JWT_SECRET_KEY` / `ADMIN_*` | Admin login |
+| `TOOL_API_KEY` | Optional header for tool routes |
+| `GOOGLE_SERVICE_ACCOUNT_FILE` | Calendar JSON key path |
+| `TWILIO_*` / `TWILIO_WHATSAPP_FROM` | SMS and WhatsApp |
+| `REMINDER_SMS_LEAD_MINUTES` / `REMINDER_WHATSAPP_LEAD_MINUTES` | Minutes before appointment to send |
+| `PUBLIC_BASE_URL` | Public HTTPS base (e.g. ngrok) for webhooks |
+| `VAPI_*` | Private key, assistant ID, ngrok URL for `sync_vapi` |
+
+---
+
+## Database and migrations
+
+```bash
+alembic upgrade head    # apply all migrations
+alembic current         # show revision
+```
+
+Migrations live in `alembic/versions/` (including provider `fee_pkr` and reminder fields).
+
+---
+
+## Vapi (voice AI)
+
+| Asset | Path |
+|-------|------|
+| Tool definitions | `vapi/tools.json` |
+| System / assistant prompt | `vapi/assistant_prompt.txt` |
+
+Sync prompt and tools to the Vapi dashboard (requires `VAPI_PRIVATE_API_KEY`, `VAPI_ASSISTANT_ID`, and a reachable `VAPI_NGROK_URL`):
+
+```bash
+python -m scripts.sync_vapi
+```
+
+Expose your FastAPI base URL over **HTTPS** (for example **ngrok**) so Vapi can call tool endpoints in development.
+
+---
+
+## Twilio (SMS and WhatsApp)
+
+1. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_FROM_PHONE` for SMS.
+2. For WhatsApp sandbox or approved sender, set `TWILIO_WHATSAPP_FROM` and `WHATSAPP_REMINDER_ENABLED=true`.
+3. Point Twilio inbound webhooks to your deployed **`PUBLIC_BASE_URL`** routes for reminder replies (as configured in your app — see `PUBLIC_BASE_URL` in `.env`).
+
+Use one Twilio project for all numbers and sandbox access to avoid mismatched credentials.
+
+---
+
+## Google Calendar
+
+1. Create a **service account** in Google Cloud and download the JSON key.
+2. Share the target calendar with the service account email.
+3. Set `GOOGLE_SERVICE_ACCOUNT_FILE` and `GOOGLE_CALENDAR_ID` in `.env`.
+
+If Calendar is not configured, booking can still proceed with a safe sync-skipped path depending on your deployment.
+
+---
+
+## API reference
+
+### Agent / tool routes (examples)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/v1/tools/get_faq_answer` | FAQ lookup |
+| GET | `/api/v1/tools/get_providers` | List providers (includes `fee_pkr` when set) |
+| GET | `/api/v1/tools/get_available_slots` | Free slots for a provider |
+| POST | `/api/v1/tools/check_calendar` | Conflict check |
+| POST | `/api/v1/tools/book_appointment` | Create booking |
+| POST | `/api/v1/tools/cancel_appointment` | Cancel |
+| POST | `/api/v1/tools/reschedule_appointment` | Reschedule |
+
+### Example: `book_appointment`
 
 `POST /api/v1/tools/book_appointment`
 
 ```json
 {
   "user_name": "Ali Khan",
-  "user_email": "ali@example.com",
+  "user_phone": "+923001234567",
   "provider_id": 1,
-  "slot_id": 2
+  "slot_id": 2,
+  "confirmed_by_user": true,
+  "confirmation_text": "yes please book it",
+  "idempotency_key": "optional-unique-key-12345678"
 }
 ```
 
-## Remaining for Full Production
+### Admin and auth (examples)
 
-1. Expose backend publicly with HTTPS for Vapi tools (ngrok or deployment).
-2. Enable `TOOL_API_KEY` and add `X-Tool-Api-Key` header in Vapi tools.
-3. Configure SMTP/Twilio for real notification delivery.
-4. Add retries/alerting around external failures (calendar provider outages, etc.).
-5. Add organization-level multi-tenant support.
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/v1/auth/login` | Admin JWT |
+| GET | `/api/v1/admin/appointments` | List appointments |
+| GET/POST | `/api/v1/admin/providers` | Providers CRUD |
+| GET/POST | `/api/v1/admin/slots` | Slots |
+| GET/POST | `/api/v1/admin/faqs` | FAQs |
+| GET | `/api/v1/admin/notifications` | Notification log |
+
+Full detail: **Swagger UI** at `/docs` when the server is running.
+
+---
+
+## Project structure
+
+| Path | Contents |
+|------|----------|
+| `app/` | FastAPI application entry |
+| `api/` | Routes: public tools, admin, Vapi webhooks |
+| `db/` | SQLAlchemy models and database session |
+| `schemas/` | Pydantic DTOs |
+| `services/` | Booking, calendar, notifications, reminders, auth |
+| `alembic/` | Migrations |
+| `scripts/` | Seed, Vapi sync, utilities |
+| `vapi/` | `tools.json`, `assistant_prompt.txt` |
+| `frontend/` | React + Vite admin and voice client |
+| `tests/` | Automated tests |
+
+---
+
+## Security notes
+
+| Never commit | Reason |
+|--------------|--------|
+| `.env` | Live secrets and API keys |
+| `frontend/.env` | Vapi browser credentials |
+| `google-service-account.json` | Full access to Calendar as service account |
+| Local `*.db` | May contain PII from development |
+
+This repository uses `.gitignore` to exclude those files. Rotate any key that was ever pushed to a remote by mistake.
+
+---
+
+## Contributing and license
+
+Issues and pull requests are welcome. Add a **LICENSE** file if you plan to open-source under a specific terms.
+
+---
+
+**Built with:** FastAPI · PostgreSQL · React · Vapi · Google Calendar · Twilio
