@@ -1,8 +1,30 @@
 # AI-Powered Hospital Appointment Agent
 
-Voice-first appointment system for hospitals and clinics: patients book, reschedule, or cancel by talking to an AI assistant. The backend syncs with **Google Calendar**, sends **SMS** and **WhatsApp** reminders via **Twilio**, and exposes an **admin dashboard** (React) for providers, slots, appointments, fees, and notification logs.
+**Voice-first hospital and clinic scheduling** — patients book, reschedule, or cancel through an AI assistant. The stack ties together **FastAPI**, **PostgreSQL**, **Vapi** (voice), **Google Calendar**, **Twilio** (SMS & WhatsApp reminders), and a **React** admin dashboard for providers, slots, fees, and notification logs.
 
-**Repository:** [github.com/Muqadas1234/AI-Powered-hospital-appointment-agent](https://github.com/Muqadas1234/AI-Powered-hospital-appointment-agent)
+---
+
+## About this project
+
+| | |
+|---|---|
+| **What it is** | An end-to-end demo-ready system: conversational booking, live slot checks, calendar sync, automated reminders, and staff tools in one repo. |
+| **Who it is for** | Healthcare IT demos, final-year projects, portfolios, or as a base for a commercial appointment product. |
+| **What you get in the repo** | Backend APIs, Alembic migrations, reminder worker, Vapi tool definitions + assistant prompt, and a Vite + React frontend (voice + admin). |
+| **What you bring** | Your own `.env` secrets: database, JWT, optional Twilio, Vapi, and Google service account (see `.env.example`). No real keys are committed. |
+
+**Repository:** [github.com/Muqadas1234/Muqadas1234-AI-Powered-hospital-appointment-agent](https://github.com/Muqadas1234/Muqadas1234-AI-Powered-hospital-appointment-agent)
+
+---
+
+## Author & contact
+
+| | |
+|---|---|
+| **Maintainer** | Muqadas |
+| **Email** | [muqadasakram.13@gmail.com](mailto:muqadasakram.13@gmail.com) |
+
+For **collaboration**, **deployment help**, **licensing**, or **custom features**, feel free to reach out by email. For bugs or small improvements, GitHub **Issues** are welcome.
 
 ---
 
@@ -10,7 +32,8 @@ Voice-first appointment system for hospitals and clinics: patients book, resched
 
 | Section | Description |
 |--------|-------------|
-| [Overview](#overview) | What this project does |
+| [About this project](#about-this-project) | What it is, who it is for, what is included |
+| [Author & contact](#author--contact) | Maintainer and email |
 | [Features](#features) | Capabilities at a glance |
 | [Tech stack](#tech-stack) | Languages, frameworks, and services |
 | [Architecture](#architecture) | High-level flow |
@@ -24,6 +47,7 @@ Voice-first appointment system for hospitals and clinics: patients book, resched
 | [API reference](#api-reference) | Main HTTP endpoints |
 | [Project structure](#project-structure) | Repository layout |
 | [Security notes](#security-notes) | What never to commit |
+| [Contributing & license](#contributing--license) | How to contribute |
 
 ---
 
@@ -97,8 +121,8 @@ Staff (browser) ──► React admin ──► FastAPI (JWT)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Muqadas1234/AI-Powered-hospital-appointment-agent.git
-cd AI-Powered-hospital-appointment-agent
+git clone https://github.com/Muqadas1234/Muqadas1234-AI-Powered-hospital-appointment-agent.git
+cd Muqadas1234-AI-Powered-hospital-appointment-agent
 ```
 
 ### 2. Backend
@@ -283,9 +307,11 @@ This repository uses `.gitignore` to exclude those files. Rotate any key that wa
 
 ---
 
-## Contributing and license
+## Contributing & license
 
-Issues and pull requests are welcome. Add a **LICENSE** file if you plan to open-source under a specific terms.
+Pull requests and issues are welcome. For larger changes or private deployments, email **[muqadasakram.13@gmail.com](mailto:muqadasakram.13@gmail.com)**.
+
+Add a **LICENSE** file when you decide how you want others to use this code (e.g. MIT, Apache-2.0, or proprietary).
 
 ---
 
