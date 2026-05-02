@@ -1,65 +1,42 @@
-# AI-Powered Hospital Appointment Agent
-
-**Voice-first hospital and clinic scheduling** — patients book, reschedule, or cancel through an AI assistant. The stack ties together **FastAPI**, **PostgreSQL**, **Vapi** (voice), **Google Calendar**, **Twilio** (SMS & WhatsApp reminders), and a **React** admin dashboard for providers, slots, fees, and notification logs.
-
----
-
-## About this project
+## Table of contents
 
 | | |
 |---|---|
-| **What it is** | An end-to-end demo-ready system: conversational booking, live slot checks, calendar sync, automated reminders, and staff tools in one repo. |
-| **Who it is for** | Healthcare IT demos, final-year projects, portfolios, or as a base for a commercial appointment product. |
-| **What you get in the repo** | Backend APIs, Alembic migrations, reminder worker, Vapi tool definitions + assistant prompt, and a Vite + React frontend (voice + admin). |
-| **What you bring** | Your own `.env` secrets: database, JWT, optional Twilio, Vapi, and Google service account (see `.env.example`). No real keys are committed. |
+| [AI-Powered Hospital Appointment Agent](#ai-powered-hospital-appointment-agent) | Title and tagline |
+| [About this project](#about-this-project) | What it is and why it exists |
+| [Features](#features) | Main capabilities |
+| [Tech stack](#tech-stack) | Technologies used |
+| [Architecture](#architecture) | High-level flow |
+| [Prerequisites](#prerequisites) | What you need installed |
+| [Quick start](#quick-start) | Run backend and frontend locally |
+| [Configuration](#configuration) | Local env files (brief) |
+| [Database and migrations](#database-and-migrations) | Alembic / PostgreSQL |
+| [Vapi (voice AI)](#vapi-voice-ai) | Voice assistant assets |
+| [Twilio (SMS and WhatsApp)](#twilio-sms-and-whatsapp) | Reminders |
+| [Google Calendar](#google-calendar) | Calendar sync |
+| [API reference](#api-reference) | Main HTTP endpoints |
+| [Project structure](#project-structure) | Repository layout |
+| [Security](#security) | Commits and private data |
+| [Contributing & license](#contributing--license) | How to contribute |
+| [Author & contact](#author--contact) | Maintainer |
+
+---
+
+# AI-Powered Hospital Appointment Agent
+
+**Voice-first hospital and clinic scheduling** — patients book, reschedule, or cancel through an AI assistant, while staff use a web dashboard for providers, slots, fees, and logs. The backend is **FastAPI** and **PostgreSQL**; voice is **Vapi**; calendar sync is **Google Calendar**; reminders go out over **Twilio** (SMS and optional WhatsApp). The admin UI is **React** and **Vite**.
 
 **Repository:** [github.com/Muqadas1234/Muqadas1234-AI-Powered-hospital-appointment-agent](https://github.com/Muqadas1234/Muqadas1234-AI-Powered-hospital-appointment-agent)
 
 ---
 
-## Author & contact
+## About this project
 
-| | |
-|---|---|
-| **Maintainer** | Muqadas |
-| **Email** | [muqadasakram.13@gmail.com](mailto:muqadasakram.13@gmail.com) |
+This project is a **full-stack appointment agent**: the patient talks to an assistant that checks real availability, creates or updates bookings, and keeps the hospital side in sync. Behind the scenes, the same system can **notify** patients before visits and let them **respond** on channels you enable, so the flow feels like a single product rather than a loose demo.
 
-For **collaboration**, **deployment help**, **licensing**, or **custom features**, feel free to reach out by email. For bugs or small improvements, GitHub **Issues** are welcome.
+It suits **portfolios**, **final-year or capstone demos**, **health-tech proof-of-concepts**, or as a **starting point** for a real deployment you customize and harden. The focus is on a clear path from **voice intent** to **stored appointment** and **staff visibility**, with room to extend rules, branding, and integrations.
 
----
-
-## Table of contents
-
-| Section | Description |
-|--------|-------------|
-| [About this project](#about-this-project) | What it is, who it is for, what is included |
-| [Author & contact](#author--contact) | Maintainer and email |
-| [Features](#features) | Capabilities at a glance |
-| [Tech stack](#tech-stack) | Languages, frameworks, and services |
-| [Architecture](#architecture) | High-level flow |
-| [Prerequisites](#prerequisites) | What you need installed |
-| [Quick start](#quick-start) | Run backend and frontend locally |
-| [Configuration](#configuration) | Environment variables and secrets |
-| [Database and migrations](#database-and-migrations) | PostgreSQL / Alembic |
-| [Vapi (voice AI)](#vapi-voice-ai) | Assistant, tools, sync script |
-| [Twilio (SMS and WhatsApp)](#twilio-sms-and-whatsapp) | Reminders and inbound replies |
-| [Google Calendar](#google-calendar) | Service account setup |
-| [API reference](#api-reference) | Main HTTP endpoints |
-| [Project structure](#project-structure) | Repository layout |
-| [Security notes](#security-notes) | What never to commit |
-| [Contributing & license](#contributing--license) | How to contribute |
-
----
-
-## Overview
-
-The **AI Hospital Appointment Agent** connects three layers:
-
-1. **Voice (Vapi)** — The patient speaks; the assistant uses tool calls to read availability and complete bookings.
-2. **API (FastAPI)** — Validates requests, persists data, drives notifications, and integrates with Google Calendar.
-3. **Admin UI (React + Vite)** — Staff manage providers (including **consultation fee in PKR**), time slots, FAQs, appointments, and notification history.
-
-Scheduled jobs (**APScheduler**) send reminders before appointments; patients can confirm or cancel via **SMS/WhatsApp** replies where configured.
+The repo includes the **API**, **migrations**, **background reminder logic**, **Vapi tool + prompt files**, and the **frontend** for both voice and admin. Integrations such as telephony, calendar, and hosting are **your deployment choices** — wire them when you run the app locally or in production.
 
 ---
 
@@ -71,7 +48,7 @@ Scheduled jobs (**APScheduler**) send reminders before appointments; patients ca
 | Reschedule / cancel | Update or cancel existing appointments; slot release and notifications |
 | Provider fees | `fee_pkr` per provider; assistant can state fees naturally to patients |
 | Calendar sync | Create/update/delete Google Calendar events when slots change |
-| Reminders | SMS and optional WhatsApp reminders (lead time configurable in minutes) |
+| Reminders | SMS and optional WhatsApp reminders (timing is configurable) |
 | Admin auth | JWT login for protected admin routes |
 | Idempotency | Optional `idempotency_key` on booking to avoid duplicate appointments |
 | Tool security | Optional `TOOL_API_KEY` for agent-facing tool endpoints |
@@ -132,7 +109,7 @@ python -m venv .venv
 # Windows: .venv\Scripts\activate
 # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-copy .env.example .env   # Windows — edit .env with your values
+copy .env.example .env   # Windows — then edit .env for your setup
 # cp .env.example .env   # macOS/Linux
 alembic upgrade head
 python -m scripts.seed    # optional sample data
@@ -146,7 +123,7 @@ Open interactive docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 ```bash
 cd frontend
 npm install
-copy .env.example .env   # set VITE_VAPI_PUBLIC_KEY and VITE_VAPI_ASSISTANT_ID
+copy .env.example .env   # Windows — fill in for your Vapi app
 npm run dev
 ```
 
@@ -156,31 +133,14 @@ Open: [http://127.0.0.1:5173](http://127.0.0.1:5173)
 
 ## Configuration
 
-| File | Purpose |
-|------|---------|
-| `.env` | Backend secrets and URLs — **create from `.env.example`**, never commit |
-| `frontend/.env` | Vapi public key and assistant ID for the browser |
-| `google-service-account.json` | Google service account key — **never commit** (path set in `.env`) |
-
-Copy examples:
+Copy the example files and adjust them for your machine:
 
 ```bash
 copy .env.example .env
 copy frontend\.env.example frontend\.env
 ```
 
-Important variables (see `.env.example` for the full list):
-
-| Variable | Role |
-|----------|------|
-| `DATABASE_URL` | SQLAlchemy URL (PostgreSQL) |
-| `JWT_SECRET_KEY` / `ADMIN_*` | Admin login |
-| `TOOL_API_KEY` | Optional header for tool routes |
-| `GOOGLE_SERVICE_ACCOUNT_FILE` | Calendar JSON key path |
-| `TWILIO_*` / `TWILIO_WHATSAPP_FROM` | SMS and WhatsApp |
-| `REMINDER_SMS_LEAD_MINUTES` / `REMINDER_WHATSAPP_LEAD_MINUTES` | Minutes before appointment to send |
-| `PUBLIC_BASE_URL` | Public HTTPS base (e.g. ngrok) for webhooks |
-| `VAPI_*` | Private key, assistant ID, ngrok URL for `sync_vapi` |
+Use **`.env.example`** and **`frontend/.env.example`** as the reference while you edit your local files. Do not commit private copies.
 
 ---
 
@@ -191,7 +151,7 @@ alembic upgrade head    # apply all migrations
 alembic current         # show revision
 ```
 
-Migrations live in `alembic/versions/` (including provider `fee_pkr` and reminder fields).
+Migrations live in `alembic/versions/` (including provider `fee_pkr` and reminder-related fields).
 
 ---
 
@@ -202,33 +162,25 @@ Migrations live in `alembic/versions/` (including provider `fee_pkr` and reminde
 | Tool definitions | `vapi/tools.json` |
 | System / assistant prompt | `vapi/assistant_prompt.txt` |
 
-Sync prompt and tools to the Vapi dashboard (requires `VAPI_PRIVATE_API_KEY`, `VAPI_ASSISTANT_ID`, and a reachable `VAPI_NGROK_URL`):
+To push prompt and tools to the Vapi dashboard:
 
 ```bash
 python -m scripts.sync_vapi
 ```
 
-Expose your FastAPI base URL over **HTTPS** (for example **ngrok**) so Vapi can call tool endpoints in development.
+For development, expose your API over **HTTPS** (for example a tunnel) so Vapi can reach your tool URLs.
 
 ---
 
 ## Twilio (SMS and WhatsApp)
 
-1. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_FROM_PHONE` for SMS.
-2. For WhatsApp sandbox or approved sender, set `TWILIO_WHATSAPP_FROM` and `WHATSAPP_REMINDER_ENABLED=true`.
-3. Point Twilio inbound webhooks to your deployed **`PUBLIC_BASE_URL`** routes for reminder replies (as configured in your app — see `PUBLIC_BASE_URL` in `.env`).
-
-Use one Twilio project for all numbers and sandbox access to avoid mismatched credentials.
+Configure your Twilio account and sender numbers for the reminders you want. Point inbound message webhooks at your **public** app URL when you test replies. Keep SMS and WhatsApp setup under **one** Twilio project so credentials stay consistent.
 
 ---
 
 ## Google Calendar
 
-1. Create a **service account** in Google Cloud and download the JSON key.
-2. Share the target calendar with the service account email.
-3. Set `GOOGLE_SERVICE_ACCOUNT_FILE` and `GOOGLE_CALENDAR_ID` in `.env`.
-
-If Calendar is not configured, booking can still proceed with a safe sync-skipped path depending on your deployment.
+Create a service account, download its key JSON, share the target calendar with that account, and place the file where your local config expects it. If Calendar is not set up, booking can still run depending on how you deploy; calendar steps are optional for a minimal API-only tryout.
 
 ---
 
@@ -294,24 +246,26 @@ Full detail: **Swagger UI** at `/docs` when the server is running.
 
 ---
 
-## Security notes
+## Security
 
-| Never commit | Reason |
-|--------------|--------|
-| `.env` | Live secrets and API keys |
-| `frontend/.env` | Vapi browser credentials |
-| `google-service-account.json` | Full access to Calendar as service account |
-| Local `*.db` | May contain PII from development |
-
-This repository uses `.gitignore` to exclude those files. Rotate any key that was ever pushed to a remote by mistake.
+Keep local-only and sensitive material out of git. This repo relies on **`.gitignore`** for common cases; review before every push.
 
 ---
 
 ## Contributing & license
 
-Pull requests and issues are welcome. For larger changes or private deployments, email **[muqadasakram.13@gmail.com](mailto:muqadasakram.13@gmail.com)**.
+Pull requests and issues are welcome. Add a **LICENSE** file when you decide how others may use this project.
 
-Add a **LICENSE** file when you decide how you want others to use this code (e.g. MIT, Apache-2.0, or proprietary).
+---
+
+## Author & contact
+
+| | |
+|---|---|
+| **Maintainer** | Muqadas |
+| **Email** | [muqadasakram.13@gmail.com](mailto:muqadasakram.13@gmail.com) |
+
+For collaboration, deployment questions, or licensing, use the email above.
 
 ---
 
