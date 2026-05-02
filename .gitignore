@@ -1,0 +1,41 @@
+# Environment & secrets — do not commit
+.env
+.env.*
+!.env.example
+!**/.env.example
+google-service-account.json
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+
+# Node / frontend
+frontend/node_modules/
+node_modules/
+frontend/dist/
+*.local
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# Local tooling
+.cursor_tmp_*.py

@@ -1,0 +1,289 @@
+[
+  {
+    "name": "get_faq_answer",
+    "description": "Get answer for business FAQ questions.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/get_faq_answer",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "question": "{{question}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "string",
+          "description": "User question in natural language."
+        }
+      },
+      "required": [
+        "question"
+      ]
+    }
+  },
+  {
+    "name": "get_providers",
+    "description": "Fetch providers by service type.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/get_providers",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "service": "{{service}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "Service category, for example dentist."
+        }
+      },
+      "required": [
+        "service"
+      ]
+    }
+  },
+  {
+    "name": "get_available_slots",
+    "description": "Get open appointment slots for a provider.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/get_available_slots",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "provider_id": "{{provider_id}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "type": "integer",
+          "description": "Provider id."
+        }
+      },
+      "required": [
+        "provider_id"
+      ]
+    }
+  },
+  {
+    "name": "check_service_availability",
+    "description": "Check if requested service is available on a specific day/time and get nearest alternatives.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/check_service_availability",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "service": "{{service}}",
+      "date": "{{date}}",
+      "preferred_time": "{{preferred_time}}",
+      "time_window": "{{time_window}}",
+      "doctor_name": "{{doctor_name}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "description": "YYYY-MM-DD"
+        },
+        "preferred_time": {
+          "type": "string",
+          "description": "HH:MM or HH:MM:SS"
+        },
+        "time_window": {
+          "type": "string",
+          "description": "morning/afternoon/evening"
+        },
+        "doctor_name": {
+          "type": "string",
+          "description": "e.g. Dr Aisha Khan when user names a doctor"
+        }
+      },
+      "required": [
+        "service",
+        "date"
+      ]
+    }
+  },
+  {
+    "name": "check_calendar",
+    "description": "Check if user already has booking conflict.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/check_calendar",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "user_phone": "{{user_phone}}",
+      "date": "{{date}}",
+      "time": "{{time}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "user_phone": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "description": "YYYY-MM-DD"
+        },
+        "time": {
+          "type": "string",
+          "description": "HH:MM:SS"
+        }
+      },
+      "required": [
+        "user_phone",
+        "date",
+        "time"
+      ]
+    }
+  },
+  {
+    "name": "book_appointment",
+    "description": "Book the final appointment after user confirmation.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/book_appointment",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "user_name": "{{user_name}}",
+      "user_phone": "{{user_phone}}",
+      "provider_id": "{{provider_id}}",
+      "slot_id": "{{slot_id}}",
+      "confirmed_by_user": "{{confirmed_by_user}}",
+      "confirmation_text": "{{confirmation_text}}",
+      "idempotency_key": "{{idempotency_key}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "user_name": {
+          "type": "string"
+        },
+        "user_phone": {
+          "type": "string",
+          "description": "Patient phone in international format, e.g. +923001234567."
+        },
+        "provider_id": {
+          "type": "integer"
+        },
+        "slot_id": {
+          "type": "integer"
+        },
+        "confirmed_by_user": {
+          "type": "boolean",
+          "description": "Set true only after reading full summary (name, doctor, date, time) and patient explicitly says yes/confirm."
+        },
+        "confirmation_text": {
+          "type": "string",
+          "description": "Exact short patient confirmation phrase, e.g. yes confirm."
+        },
+        "idempotency_key": {
+          "type": "string",
+          "description": "Unique key per booking attempt to prevent duplicate bookings."
+        }
+      },
+      "required": [
+        "user_name",
+        "user_phone",
+        "provider_id",
+        "slot_id",
+        "confirmed_by_user",
+        "confirmation_text"
+      ]
+    }
+  },
+  {
+    "name": "cancel_appointment",
+    "description": "Cancel an existing appointment by id and remove it from Google Calendar if synced.",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/cancel_appointment",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "appointment_id": "{{appointment_id}}",
+      "reason": "{{reason}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "appointment_id": {
+          "type": "integer",
+          "description": "appointment_id from book_appointment response"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional short reason (e.g. customer requested cancel)"
+        }
+      },
+      "required": [
+        "appointment_id"
+      ]
+    }
+  },
+  {
+    "name": "reschedule_appointment",
+    "description": "Move a confirmed appointment to a different time slot for the same doctor. Requires appointment_id from booking and new_slot_id from check_service_availability or get_available_slots (same provider).",
+    "url": "https://appendix-footbath-unvocal.ngrok-free.dev/api/v1/tools/reschedule_appointment",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      "x-tool-api-key": "cxIxjbT1bDCaN1peTpjySdq2K2xew9oQiWQTfFK58F4"
+    },
+    "body": {
+      "appointment_id": "{{appointment_id}}",
+      "new_slot_id": "{{new_slot_id}}",
+      "idempotency_key": "{{idempotency_key}}"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "appointment_id": {
+          "type": "integer",
+          "description": "appointment_id returned when the appointment was booked (book_appointment response)."
+        },
+        "new_slot_id": {
+          "type": "integer",
+          "description": "slot id for the new time from availability tools (must be same provider as the current appointment)."
+        },
+        "idempotency_key": {
+          "type": "string",
+          "description": "Optional unique key for this reschedule attempt to avoid duplicate moves."
+        }
+      },
+      "required": [
+        "appointment_id",
+        "new_slot_id"
+      ]
+    }
+  }
+]
