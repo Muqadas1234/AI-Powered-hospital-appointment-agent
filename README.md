@@ -66,8 +66,8 @@ Staff (browser) → React → FastAPI (JWT)
 **Requirements:** Python 3.10+, Node.js 18+, PostgreSQL.
 
 ```bash
-git clone https://github.com/Muqadas1234/Muqadas1234-AI-Powered-hospital-appointment-agent.git
-cd Muqadas1234-AI-Powered-hospital-appointment-agent
+git clone https://github.com/Muqadas1234/AI-powered-hospital-appointment-agent.git
+cd AI-powered-hospital-appointment-agent
 ```
 
 **Backend**
